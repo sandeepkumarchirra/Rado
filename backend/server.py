@@ -364,13 +364,25 @@ async def get_messages(current_user_id: str = Depends(verify_jwt_token)):
         ]}
     ).sort("timestamp", -1).limit(100).to_list(100)
     
-    # Get sender names
+    # Convert MongoDB documents to JSON-serializable format
+    serialized_messages = []
     for message in messages:
+        # Remove MongoDB ObjectId field
+        if "_id" in message:
+            del message["_id"]
+        
+        # Get sender names
         sender = await db.users.find_one({"id": message["sender_id"]})
         if sender:
             message["sender_name"] = sender["name"]
+        
+        # Convert datetime to ISO string if present
+        if "timestamp" in message and hasattr(message["timestamp"], "isoformat"):
+            message["timestamp"] = message["timestamp"].isoformat()
+        
+        serialized_messages.append(message)
     
-    return {"messages": messages}
+    return {"messages": serialized_messages}
 
 @api_router.put("/preferences")
 async def update_preferences(preferences: UserPreferences, current_user_id: str = Depends(verify_jwt_token)):

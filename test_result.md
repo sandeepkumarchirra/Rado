@@ -252,9 +252,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Authentication Screens (signup, login, verify)"
+    - "Signup to Verification Flow"
+    - "Backend API Integration"
   stuck_tasks:
-    - "Authentication Screens (signup, login, verify)"
+    - "Signup to Verification Flow"
   test_all: false
   test_priority: "stuck_first"
 

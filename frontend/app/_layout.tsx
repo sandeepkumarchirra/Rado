@@ -13,11 +13,11 @@ export default function RootLayout() {
       <Stack.Screen name="auth/signup" />
       <Stack.Screen name="auth/login" />
       <Stack.Screen name="auth/verify" />
-      <Stack.Screen name="map/index" />
+      <Stack.Screen name="map" />
       <Stack.Screen name="messages/send" />
       <Stack.Screen name="profile/preferences" />
       <Stack.Screen name="profile/settings" />
-      <Stack.Screen name="notifications/index" />
+      <Stack.Screen name="notifications" />
     </Stack>
   );
 }

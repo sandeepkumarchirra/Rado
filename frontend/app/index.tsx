@@ -21,13 +21,13 @@ export default function WelcomeScreen() {
 
         <View style={styles.buttonsContainer}>
           <Link href="/auth/signup" asChild>
-            <TouchableOpacity style={[styles.button, styles.primaryButton]}>
+            <TouchableOpacity style={StyleSheet.flatten([styles.button, styles.primaryButton])}>
               <Text style={styles.primaryButtonText}>Sign Up</Text>
             </TouchableOpacity>
           </Link>
 
           <Link href="/auth/login" asChild>
-            <TouchableOpacity style={[styles.button, styles.secondaryButton]}>
+            <TouchableOpacity style={StyleSheet.flatten([styles.button, styles.secondaryButton])}>
               <Text style={styles.secondaryButtonText}>Login</Text>
             </TouchableOpacity>
           </Link>

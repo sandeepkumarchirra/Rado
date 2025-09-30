@@ -7,10 +7,10 @@ import {
   SafeAreaView,
   Alert,
   ActivityIndicator,
-  Slider,
   StatusBar,
   Platform,
 } from 'react-native';
+import Slider from '@react-native-community/slider';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';

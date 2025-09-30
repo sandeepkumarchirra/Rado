@@ -9,13 +9,25 @@ import {
   ActivityIndicator,
   Slider,
   StatusBar,
+  Platform,
 } from 'react-native';
-import MapView, { Marker, Circle } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+
+// Conditional import for maps - only on native platforms
+let MapView: any = null;
+let Marker: any = null;
+let Circle: any = null;
+
+if (Platform.OS !== 'web') {
+  const Maps = require('react-native-maps');
+  MapView = Maps.default;
+  Marker = Maps.Marker;
+  Circle = Maps.Circle;
+}
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -37,7 +49,7 @@ interface UserLocation {
 
 export default function MapScreen() {
   const router = useRouter();
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef<any>(null);
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [nearbyUsers, setNearbyUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -202,6 +214,121 @@ export default function MapScreen() {
 
   const radiusInMeters = radius * 1609.34; // Convert miles to meters
 
+  // Web fallback UI
+  if (Platform.OS === 'web') {
+    return (
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
+        
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Nearby Connect</Text>
+          <View style={styles.headerButtons}>
+            <TouchableOpacity style={styles.headerButton} onPress={goToNotifications}>
+              <Ionicons name="notifications-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.headerButton} onPress={goToPreferences}>
+              <Ionicons name="settings-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.headerButton} onPress={goToProfile}>
+              <Ionicons name="person-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Web Map Placeholder */}
+        <View style={styles.webMapContainer}>
+          <View style={styles.webMapPlaceholder}>
+            <Ionicons name="map" size={64} color="#4a9eff" />
+            <Text style={styles.webMapTitle}>Map View</Text>
+            <Text style={styles.webMapSubtitle}>
+              Interactive map with Google Maps integration available on mobile devices
+            </Text>
+            <View style={styles.locationInfo}>
+              <Text style={styles.locationText}>
+                📍 Current Location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+              </Text>
+              <Text style={styles.locationText}>
+                🎯 Search Radius: {radius.toFixed(1)} miles
+              </Text>
+            </View>
+          </View>
+
+          {/* Refresh Button */}
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={handleRefresh}
+            disabled={updating}
+          >
+            <Ionicons 
+              name="refresh" 
+              size={20} 
+              color="#fff" 
+              style={updating ? styles.rotating : undefined}
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Controls */}
+        <View style={styles.controls}>
+          {/* User Count */}
+          <View style={styles.userCount}>
+            <Ionicons name="people" size={20} color="#4a9eff" />
+            <Text style={styles.userCountText}>
+              {nearbyUsers.length} user{nearbyUsers.length !== 1 ? 's' : ''} in radius
+            </Text>
+          </View>
+
+          {/* Users List for Web */}
+          {nearbyUsers.length > 0 && (
+            <View style={styles.usersList}>
+              <Text style={styles.usersListTitle}>Nearby Users:</Text>
+              {nearbyUsers.map((user) => (
+                <View key={user.id} style={styles.userItem}>
+                  <Ionicons name="person" size={16} color="#4a9eff" />
+                  <Text style={styles.userName}>{user.name}</Text>
+                  <Text style={styles.userDistance}>{user.distance_miles}mi</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Radius Slider */}
+          <View style={styles.sliderContainer}>
+            <Text style={styles.sliderLabel}>Search Radius: {radius.toFixed(1)} miles</Text>
+            <Slider
+              style={styles.slider}
+              value={radius}
+              onValueChange={setRadius}
+              minimumValue={0.5}
+              maximumValue={5.0}
+              step={0.1}
+              minimumTrackTintColor="#4a9eff"
+              maximumTrackTintColor="#333"
+              thumbStyle={styles.sliderThumb}
+            />
+          </View>
+
+          {/* Send Message Button */}
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              nearbyUsers.length === 0 && styles.sendButtonDisabled,
+            ]}
+            onPress={handleSendMessage}
+            disabled={nearbyUsers.length === 0}
+          >
+            <Ionicons name="paper-plane" size={20} color="#fff" style={styles.sendIcon} />
+            <Text style={styles.sendButtonText}>
+              Send Message
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  // Native mobile UI with Google Maps
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
@@ -392,6 +519,70 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  webMapContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  webMapPlaceholder: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#2a2a2a',
+    margin: 16,
+    borderRadius: 12,
+    padding: 32,
+  },
+  webMapTitle: {
+    color: '#fff',
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginTop: 16,
+  },
+  webMapSubtitle: {
+    color: '#aaa',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 20,
+  },
+  locationInfo: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: '#333',
+    borderRadius: 8,
+  },
+  locationText: {
+    color: '#ccc',
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  usersList: {
+    marginBottom: 16,
+    backgroundColor: '#2a2a2a',
+    borderRadius: 8,
+    padding: 12,
+  },
+  usersListTitle: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  userItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  userName: {
+    color: '#ccc',
+    fontSize: 14,
+    marginLeft: 8,
+    flex: 1,
+  },
+  userDistance: {
+    color: '#888',
+    fontSize: 12,
   },
   markerContainer: {
     backgroundColor: '#4a9eff',

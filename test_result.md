@@ -171,11 +171,11 @@ frontend:
 
   - task: "Authentication Screens (signup, login, verify)"
     implemented: true
-    working: "NA"
+    working: false
     file: "/app/frontend/app/auth/signup.tsx, /app/frontend/app/auth/login.tsx, /app/frontend/app/auth/verify.tsx"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -183,6 +183,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "Cannot test due to app failing to load. Screens appear to be properly implemented based on code review."
+      - working: false
+        agent: "testing"
+        comment: "❌ ROUTING ISSUE: Signup screen not loading properly - navigation from welcome screen redirects to /auth/signup but shows welcome screen instead. Login screen has similar issue. Screens are properly implemented in code but Expo Router routing is not working correctly for auth screens. Need to investigate _layout.tsx configuration or routing setup."
 
   - task: "Map View Screen"
     implemented: true
@@ -198,6 +201,9 @@ frontend:
       - working: "NA"
         agent: "testing"
         comment: "CORRECTION: Map screen IS implemented with location services, nearby users discovery, radius slider, and send message functionality. Cannot test due to app loading issue."
+      - working: "NA"
+        agent: "testing"
+        comment: "Cannot test yet due to auth routing issues blocking access to authenticated screens. Map screen implementation looks complete but requires authentication flow to work first."
 
   - task: "Send Message Screen"
     implemented: true
@@ -243,9 +249,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Welcome Screen"
+    - "Authentication Screens (signup, login, verify)"
   stuck_tasks:
-    - "Welcome Screen"
+    - "Authentication Screens (signup, login, verify)"
   test_all: false
   test_priority: "stuck_first"
 
@@ -256,3 +262,5 @@ agent_communication:
     message: "✅ BACKEND TESTING COMPLETE - All 3 high-priority backend tasks are fully functional with 100% test success rate. Fixed one ObjectId serialization issue in messages endpoint. All APIs working: auth (signup/verify/login/profile), location services (update/nearby search), messaging (send/get with images), preferences update. Socket.IO server initialized and emitting events. Ready for frontend integration and map implementation."
   - agent: "testing"
     message: "❌ FRONTEND TESTING BLOCKED - Critical React Native Web compatibility issue preventing app from loading. Error: 'Failed to set an indexed property [0] on CSSStyleDeclaration: Indexed property setter is not supported'. This is a known Expo Router + React Native Web issue with style arrays. All frontend screens are implemented (Welcome, Auth, Map, Messages, Profile, Notifications) but cannot be tested due to this blocking error. URGENT: Main agent needs to use WEBSEARCH TOOL to find latest fix for this Expo Router React Native Web CSS error."
+  - agent: "testing"
+    message: "✅ WELCOME SCREEN FIXED - CSS error resolved! Welcome screen now loads perfectly with all elements working. ❌ NEW ISSUE: Auth screen routing broken - signup/login screens not loading despite proper navigation URLs. Expo Router configuration issue in _layout.tsx or routing setup needs investigation. Welcome screen working: Sign Up/Login buttons navigate correctly but destination screens don't render."

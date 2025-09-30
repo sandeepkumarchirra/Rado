@@ -53,7 +53,22 @@ export default function SignupScreen() {
           },
         });
       } else {
-        Alert.alert('Error', data.detail || 'Signup failed');
+        // Handle different error types
+        if (response.status === 400 && data.detail === 'User already exists') {
+          Alert.alert(
+            'Account Exists', 
+            'An account with this email already exists. Would you like to login instead?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { 
+                text: 'Login', 
+                onPress: () => router.push('/auth/login')
+              }
+            ]
+          );
+        } else {
+          Alert.alert('Error', data.detail || 'Signup failed');
+        }
       }
     } catch (error) {
       Alert.alert('Error', 'Network error. Please try again.');

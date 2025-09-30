@@ -119,6 +119,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ All authentication endpoints working perfectly: signup with validation, email/phone verification, login, profile access/update, JWT protection, and proper error handling for invalid data"
+      - working: true
+        agent: "testing"
+        comment: "✅ SIGNUP API DEBUG COMPLETE: The signup endpoint is working correctly. 400 Bad Request errors occur when trying to signup with existing emails (correct behavior). Fresh emails return 200 OK with user_id and verification_code. Validation works properly for invalid emails/phones (422 errors). The frontend 400 errors are due to duplicate email attempts, not API issues. Recommendation: Frontend should handle 'User already exists' error with better UX (suggest login, clear form, etc.)"
 
   - task: "Location Services API"
     implemented: true

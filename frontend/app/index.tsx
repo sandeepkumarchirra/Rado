@@ -1,8 +1,10 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image, SafeAreaView, StatusBar } from 'react-native';
-import { Link } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 export default function WelcomeScreen() {
+  const router = useRouter();
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
@@ -20,17 +22,19 @@ export default function WelcomeScreen() {
         </View>
 
         <View style={styles.buttonsContainer}>
-          <Link href="/auth/signup" asChild>
-            <TouchableOpacity style={StyleSheet.flatten([styles.button, styles.primaryButton])}>
-              <Text style={styles.primaryButtonText}>Sign Up</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity 
+            style={[styles.button, styles.primaryButton]}
+            onPress={() => router.push('/auth/signup')}
+          >
+            <Text style={styles.primaryButtonText}>Sign Up</Text>
+          </TouchableOpacity>
 
-          <Link href="/auth/login" asChild>
-            <TouchableOpacity style={StyleSheet.flatten([styles.button, styles.secondaryButton])}>
-              <Text style={styles.secondaryButtonText}>Login</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity 
+            style={[styles.button, styles.secondaryButton]}
+            onPress={() => router.push('/auth/login')}
+          >
+            <Text style={styles.secondaryButtonText}>Login</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.footerText}>

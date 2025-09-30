@@ -255,12 +255,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Signup to Verification Flow"
-    - "Backend API Integration"
-  stuck_tasks:
-    - "Signup to Verification Flow"
+    - "Frontend UX Improvements"
+    - "Map View Screen"
+  stuck_tasks: []
   test_all: false
-  test_priority: "stuck_first"
+  test_priority: "high_first"
 
 agent_communication:
   - agent: "main"

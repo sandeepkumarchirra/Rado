@@ -14,6 +14,7 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -93,7 +94,7 @@ export default function VerifyScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter 6-digit code"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={code}
                 onChangeText={setCode}
                 keyboardType="number-pad"
@@ -111,7 +112,7 @@ export default function VerifyScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={Colors.textPrimary} />
               ) : (
                 <Text style={styles.buttonText}>Verify Account</Text>
               )}
@@ -133,7 +134,7 @@ export default function VerifyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -150,12 +151,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#aaa',
+    color: Colors.textSecondary,
     lineHeight: 24,
   },
   form: {
@@ -166,30 +167,30 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#fff',
+    color: Colors.textPrimary,
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
     fontSize: 18,
-    color: '#fff',
+    color: Colors.textPrimary,
     borderWidth: 1,
-    borderColor: '#3a3a3a',
+    borderColor: Colors.border,
     textAlign: 'center',
     letterSpacing: 4,
   },
   helperText: {
     fontSize: 12,
-    color: '#888',
+    color: Colors.textSecondary,
     marginTop: 4,
     textAlign: 'center',
   },
   button: {
-    backgroundColor: '#4a9eff',
+    backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backLinkText: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: '500',
   },

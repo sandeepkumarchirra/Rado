@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -98,7 +99,7 @@ export default function SignupScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter your name"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                 autoCapitalize="words"
@@ -110,7 +111,7 @@ export default function SignupScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter your email"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
                 keyboardType="email-address"
@@ -123,7 +124,7 @@ export default function SignupScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter your phone number"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={formData.phone}
                 onChangeText={(text) => setFormData({ ...formData, phone: text })}
                 keyboardType="phone-pad"
@@ -139,7 +140,7 @@ export default function SignupScreen() {
               disabled={loading}
             >
               {loading ? (
-                <ActivityIndicator color="#fff" />
+                <ActivityIndicator color={Colors.textPrimary} />
               ) : (
                 <Text style={styles.buttonText}>Sign Up</Text>
               )}
@@ -163,7 +164,7 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -180,12 +181,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#aaa',
+    color: Colors.textSecondary,
     lineHeight: 24,
   },
   form: {
@@ -196,27 +197,27 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#fff',
+    color: Colors.textPrimary,
     marginBottom: 8,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#fff',
+    color: Colors.textPrimary,
     borderWidth: 1,
-    borderColor: '#3a3a3a',
+    borderColor: Colors.border,
   },
   helperText: {
     fontSize: 12,
-    color: '#888',
+    color: Colors.textSecondary,
     marginTop: 4,
   },
   button: {
-    backgroundColor: '#4a9eff',
+    backgroundColor: Colors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
@@ -228,7 +229,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -237,11 +238,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loginLinkText: {
-    color: '#aaa',
+    color: Colors.textSecondary,
     fontSize: 16,
   },
   loginLinkBlue: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontWeight: '500',
   },
 });

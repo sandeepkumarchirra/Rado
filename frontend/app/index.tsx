@@ -1,13 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Image, SafeAreaView, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, SafeAreaView, StatusBar } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Colors } from '../constants/Colors';
 
 export default function WelcomeScreen() {
   const router = useRouter();
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>Welcome to</Text>
@@ -48,7 +49,7 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
@@ -62,18 +63,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    color: '#888',
+    color: Colors.textSecondary,
     marginBottom: 8,
   },
   appName: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#fff',
+    color: Colors.textPrimary,
     marginBottom: 16,
   },
   subtitle: {
     fontSize: 16,
-    color: '#aaa',
+    color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 24,
   },
@@ -85,11 +86,11 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
-    borderColor: '#4a9eff',
+    borderColor: Colors.primary,
   },
   iconText: {
     fontSize: 48,
@@ -107,26 +108,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   primaryButton: {
-    backgroundColor: '#4a9eff',
+    backgroundColor: Colors.primary,
   },
   secondaryButton: {
     backgroundColor: 'transparent',
     borderWidth: 2,
-    borderColor: '#4a9eff',
+    borderColor: Colors.primary,
   },
   primaryButtonText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
   },
   secondaryButtonText: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontSize: 18,
     fontWeight: '600',
   },
   footerText: {
     textAlign: 'center',
-    color: '#666',
+    color: Colors.textTertiary,
     fontSize: 14,
     lineHeight: 20,
   },

@@ -60,7 +60,7 @@ export default function VerifyScreen() {
         Alert.alert('Success', 'Account verified successfully!', [
           {
             text: 'OK',
-            onPress: () => router.push('/map/index'),
+            onPress: () => router.push('/map'),
           },
         ]);
       } else {

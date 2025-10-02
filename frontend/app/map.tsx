@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -12,7 +12,6 @@ import {
   Animated,
   Dimensions,
 } from 'react-native';
-import Svg, { Circle, Line, Defs, RadialGradient, Stop, Path, G } from 'react-native-svg';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -60,18 +59,12 @@ export default function RadarScreen() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
-  // Animation values
-  const sweepAnimation = useRef(new Animated.Value(0)).current;
-  const pulseAnimation = useRef(new Animated.Value(1)).current;
-
   // Radar dimensions
   const radarSize = Math.min(screenWidth - 40, screenHeight * 0.4);
   const radarCenter = radarSize / 2;
 
   useEffect(() => {
     initializeScreen();
-    startSweepAnimation();
-    startPulseAnimation();
   }, []);
 
   useEffect(() => {
@@ -94,46 +87,6 @@ export default function RadarScreen() {
     }));
     setUserBlips(blips);
   }, [nearbyUsers, radius, radarCenter]);
-
-  const startSweepAnimation = () => {
-    const createSweepAnimation = () => {
-      return Animated.timing(sweepAnimation, {
-        toValue: 360,
-        duration: 4000,
-        useNativeDriver: false,
-      });
-    };
-
-    const loopAnimation = () => {
-      sweepAnimation.setValue(0);
-      createSweepAnimation().start(() => loopAnimation());
-    };
-
-    loopAnimation();
-  };
-
-  const startPulseAnimation = () => {
-    const createPulseAnimation = () => {
-      return Animated.sequence([
-        Animated.timing(pulseAnimation, {
-          toValue: 1.2,
-          duration: 1000,
-          useNativeDriver: false,
-        }),
-        Animated.timing(pulseAnimation, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: false,
-        }),
-      ]);
-    };
-
-    const loopPulse = () => {
-      createPulseAnimation().start(() => loopPulse());
-    };
-
-    loopPulse();
-  };
 
   const initializeScreen = async () => {
     try {
@@ -281,14 +234,6 @@ export default function RadarScreen() {
     router.push('/notifications');
   };
 
-  // Calculate sweep path for the radar scanner
-  const getSweepPath = (angle: number) => {
-    const angleRad = (angle - 90) * Math.PI / 180; // Start from top
-    const x = radarCenter + Math.cos(angleRad) * (radarCenter - 20);
-    const y = radarCenter + Math.sin(angleRad) * (radarCenter - 20);
-    return `M ${radarCenter} ${radarCenter} L ${x} ${y}`;
-  };
-
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -330,131 +275,67 @@ export default function RadarScreen() {
         </View>
       </View>
 
-      {/* Radar Display */}
+      {/* Simplified Radar Display */}
       <View style={styles.radarContainer}>
         <View style={[styles.radarView, { width: radarSize, height: radarSize }]}>
-          <Svg width={radarSize} height={radarSize} style={styles.radarSvg}>
-            <Defs>
-              <RadialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
-                <Stop offset="0%" stopColor={Colors.primary} stopOpacity="0.1" />
-                <Stop offset="100%" stopColor={Colors.background} stopOpacity="1" />
-              </RadialGradient>
-            </Defs>
+          {/* Radar Background */}
+          <View style={styles.radarBackground}>
+            <Ionicons name="radio" size={64} color={Colors.primary} />
+            <Text style={styles.radarTitle}>Radar Active</Text>
+            <Text style={styles.radarSubtitle}>
+              Scanning {radius.toFixed(1)} mile radius
+            </Text>
+          </View>
 
-            {/* Background gradient */}
-            <Circle 
-              cx={radarCenter} 
-              cy={radarCenter} 
-              r={radarCenter - 20} 
-              fill="url(#radarGradient)" 
-            />
-
-            {/* Concentric circles */}
+          {/* Distance Rings Visual */}
+          <View style={styles.radarRings}>
             {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
-              <Circle
-                key={index}
-                cx={radarCenter}
-                cy={radarCenter}
-                r={(radarCenter - 20) * factor}
-                fill="none"
-                stroke={Colors.radarGrid}
-                strokeWidth="1"
-                strokeDasharray="2,2"
-              />
-            ))}
-
-            {/* Cross lines */}
-            <Line
-              x1={20}
-              y1={radarCenter}
-              x2={radarSize - 20}
-              y2={radarCenter}
-              stroke={Colors.radarGrid}
-              strokeWidth="1"
-              strokeDasharray="2,2"
-            />
-            <Line
-              x1={radarCenter}
-              y1={20}
-              x2={radarCenter}
-              y2={radarSize - 20}
-              stroke={Colors.radarGrid}
-              strokeWidth="1"
-              strokeDasharray="2,2"
-            />
-
-            {/* Rotating sweep */}
-            <Animated.G
-              rotation={sweepAnimation}
-              origin={`${radarCenter}, ${radarCenter}`}
-            >
-              <Path
-                d={getSweepPath(0)}
-                stroke={Colors.radarSweep}
-                strokeWidth="3"
-                fill="none"
-              />
-            </Animated.G>
-
-            {/* Center dot */}
-            <Animated.Circle
-              cx={radarCenter}
-              cy={radarCenter}
-              r={4}
-              fill={Colors.primary}
-              scale={pulseAnimation}
-            />
-
-            {/* User blips */}
-            {userBlips.map((blip) => {
-              const angleRad = (blip.angle - 90) * Math.PI / 180;
-              const x = radarCenter + Math.cos(angleRad) * blip.radius;
-              const y = radarCenter + Math.sin(angleRad) * blip.radius;
-
-              return (
-                <G key={blip.id}>
-                  <Circle
-                    cx={x}
-                    cy={y}
-                    r={blip.selected ? 8 : 6}
-                    fill={blip.selected ? Colors.radarSelectedBlip : Colors.radarUserBlip}
-                    stroke={Colors.textPrimary}
-                    strokeWidth={blip.selected ? 2 : 1}
-                    onPress={() => handleUserBlipPress(blip)}
-                  />
-                  {blip.selected && (
-                    <Circle
-                      cx={x}
-                      cy={y}
-                      r={12}
-                      fill="none"
-                      stroke={Colors.radarSelectedBlip}
-                      strokeWidth="2"
-                      strokeDasharray="3,3"
-                    />
-                  )}
-                </G>
-              );
-            })}
-          </Svg>
-
-          {/* Distance labels */}
-          <View style={styles.distanceLabels}>
-            {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
-              <Text
+              <View
                 key={index}
                 style={[
-                  styles.distanceLabel,
+                  styles.radarRing,
                   {
-                    top: radarCenter - ((radarCenter - 20) * factor) - 10,
-                    left: radarCenter + 10,
+                    width: (radarSize - 40) * factor,
+                    height: (radarSize - 40) * factor,
+                    borderRadius: ((radarSize - 40) * factor) / 2,
                   },
                 ]}
-              >
-                {(radius * factor).toFixed(1)}mi
-              </Text>
+              />
             ))}
           </View>
+
+          {/* User Blips */}
+          <View style={styles.userBlipsContainer}>
+            {userBlips.map((blip, index) => {
+              const angleRad = (blip.angle - 90) * Math.PI / 180;
+              const x = radarCenter + Math.cos(angleRad) * Math.min(blip.radius, radarCenter - 40);
+              const y = radarCenter + Math.sin(angleRad) * Math.min(blip.radius, radarCenter - 40);
+
+              return (
+                <TouchableOpacity
+                  key={blip.id}
+                  style={[
+                    styles.userBlip,
+                    {
+                      left: x - 15,
+                      top: y - 15,
+                    },
+                    blip.selected && styles.userBlipSelected,
+                  ]}
+                  onPress={() => handleUserBlipPress(blip)}
+                >
+                  <Ionicons 
+                    name="person" 
+                    size={blip.selected ? 20 : 16} 
+                    color={Colors.textPrimary} 
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Center Dot */}
+          <View style={[styles.centerDot, { left: radarCenter - 6, top: radarCenter - 6 }]} />
         </View>
 
         {/* Refresh Button */}

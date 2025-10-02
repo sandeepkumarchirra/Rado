@@ -282,7 +282,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Routing fix validation complete - login navigation working"
+    - "SVG error fix validation complete - radar screen working"
   stuck_tasks: []
   test_all: true
   test_priority: "completed"

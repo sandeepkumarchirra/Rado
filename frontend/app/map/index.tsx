@@ -240,16 +240,25 @@ export default function RadarScreen() {
     }
   };
 
+  const handleUserBlipPress = (blip: UserBlip) => {
+    setSelectedUser(blip);
+    // Update the blips array to show selection
+    setUserBlips(prev => prev.map(b => ({ ...b, selected: b.id === blip.id })));
+  };
+
   const handleSendMessage = () => {
-    if (nearbyUsers.length === 0) {
-      Alert.alert('No Users', 'No users found in your selected radius');
+    if (!selectedUser) {
+      Alert.alert('No User Selected', 'Please select a user from the radar to send a message');
       return;
     }
+
+    // Find the full user data
+    const fullUserData = nearbyUsers.filter(user => user.id === selectedUser.id);
 
     router.push({
       pathname: '/messages/send',
       params: {
-        nearbyUsers: JSON.stringify(nearbyUsers),
+        nearbyUsers: JSON.stringify(fullUserData),
       },
     });
   };

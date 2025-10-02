@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -116,7 +117,7 @@ export default function PreferencesScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4a9eff" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading preferences...</Text>
       </SafeAreaView>
     );
@@ -127,12 +128,12 @@ export default function PreferencesScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Preferences</Text>
         <TouchableOpacity onPress={savePreferences} disabled={saving}>
           {saving ? (
-            <ActivityIndicator size="small" color="#4a9eff" />
+            <ActivityIndicator size="small" color={Colors.primary} />
           ) : (
             <Text style={styles.saveButton}>Save</Text>
           )}
@@ -163,7 +164,7 @@ export default function PreferencesScreen() {
                   <Ionicons
                     name={category.icon as any}
                     size={24}
-                    color={isSelected ? '#4a9eff' : '#666'}
+                    color={isSelected ? Colors.primary : Colors.textTertiary}
                   />
                   <Text
                     style={[
@@ -177,7 +178,7 @@ export default function PreferencesScreen() {
                 <Ionicons
                   name={isSelected ? 'checkmark-circle' : 'ellipse-outline'}
                   size={24}
-                  color={isSelected ? '#4a9eff' : '#666'}
+                  color={isSelected ? Colors.primary : Colors.textTertiary}
                 />
               </TouchableOpacity>
             );
@@ -200,16 +201,16 @@ export default function PreferencesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 16,
     marginTop: 16,
   },
@@ -219,17 +220,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
   },
   saveButton: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -241,13 +242,13 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   sectionTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 8,
   },
   sectionSubtitle: {
-    color: '#aaa',
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
   },
@@ -258,17 +259,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     paddingHorizontal: 16,
     paddingVertical: 16,
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: Colors.border,
   },
   categoryItemSelected: {
-    borderColor: '#4a9eff',
-    backgroundColor: 'rgba(74, 158, 255, 0.1)',
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated,
   },
   categoryContent: {
     flexDirection: 'row',
@@ -276,25 +277,25 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   categoryText: {
-    color: '#ccc',
+    color: Colors.textSecondary,
     fontSize: 16,
     marginLeft: 12,
   },
   categoryTextSelected: {
-    color: '#fff',
+    color: Colors.textPrimary,
   },
   footer: {
     padding: 16,
     paddingTop: 24,
   },
   footerText: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
   },
   footerSubtext: {
-    color: '#888',
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 20,
   },

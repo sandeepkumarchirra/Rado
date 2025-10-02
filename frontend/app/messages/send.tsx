@@ -18,6 +18,7 @@ import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -181,7 +182,7 @@ export default function SendMessageScreen() {
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()}>
-              <Ionicons name="arrow-back" size={24} color="#fff" />
+              <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
             </TouchableOpacity>
             <Text style={styles.headerTitle}>Send Message</Text>
             <View style={styles.headerPlaceholder} />
@@ -196,7 +197,7 @@ export default function SendMessageScreen() {
               <View style={styles.recipientsList}>
                 {users.slice(0, 3).map((user) => (
                   <View key={user.id} style={styles.recipient}>
-                    <Ionicons name="person" size={16} color="#4a9eff" />
+                    <Ionicons name="person" size={16} color={Colors.primary} />
                     <Text style={styles.recipientText}>
                       {user.name} ({user.distance_miles}mi)
                     </Text>
@@ -216,7 +217,7 @@ export default function SendMessageScreen() {
               <TextInput
                 style={styles.messageInput}
                 placeholder="Type your message here..."
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={message}
                 onChangeText={setMessage}
                 multiline={true}
@@ -237,12 +238,12 @@ export default function SendMessageScreen() {
                 <View style={styles.imageContainer}>
                   <Image source={{ uri: imageUri }} style={styles.selectedImage} />
                   <TouchableOpacity style={styles.removeImageButton} onPress={removeImage}>
-                    <Ionicons name="close-circle" size={24} color="#ff4757" />
+                    <Ionicons name="close-circle" size={24} color={Colors.error} />
                   </TouchableOpacity>
                 </View>
               ) : (
                 <TouchableOpacity style={styles.addImageButton} onPress={showImagePicker}>
-                  <Ionicons name="camera" size={24} color="#666" />
+                  <Ionicons name="camera" size={24} color={Colors.textTertiary} />
                   <Text style={styles.addImageText}>Add Photo</Text>
                 </TouchableOpacity>
               )}
@@ -258,10 +259,10 @@ export default function SendMessageScreen() {
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={Colors.textPrimary} />
             ) : (
               <>
-                <Ionicons name="paper-plane" size={20} color="#fff" style={styles.sendIcon} />
+                <Ionicons name="paper-plane" size={20} color={Colors.textPrimary} style={styles.sendIcon} />
                 <Text style={styles.sendButtonText}>Send Message</Text>
               </>
             )}
@@ -275,7 +276,7 @@ export default function SendMessageScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
@@ -289,12 +290,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
   },
@@ -308,13 +309,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 12,
   },
   recipientsList: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     padding: 12,
   },
@@ -324,28 +325,28 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   recipientText: {
-    color: '#ccc',
+    color: Colors.textSecondary,
     fontSize: 14,
     marginLeft: 8,
   },
   moreRecipients: {
-    color: '#888',
+    color: Colors.textTertiary,
     fontSize: 12,
     marginTop: 4,
     fontStyle: 'italic',
   },
   messageInput: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     padding: 16,
     fontSize: 16,
-    color: '#fff',
+    color: Colors.textPrimary,
     minHeight: 120,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: Colors.border,
   },
   characterCount: {
-    color: '#666',
+    color: Colors.textTertiary,
     fontSize: 12,
     textAlign: 'right',
     marginTop: 4,
@@ -363,32 +364,32 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.textPrimary,
     borderRadius: 12,
   },
   addImageButton: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     padding: 20,
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#333',
+    borderColor: Colors.border,
     borderStyle: 'dashed',
   },
   addImageText: {
-    color: '#666',
+    color: Colors.textTertiary,
     fontSize: 14,
     marginTop: 8,
   },
   buttonContainer: {
     padding: 16,
     paddingTop: 8,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
     borderTopWidth: 1,
-    borderTopColor: '#333',
+    borderTopColor: Colors.border,
   },
   sendButton: {
-    backgroundColor: '#4a9eff',
+    backgroundColor: Colors.primary,
     paddingVertical: 16,
     paddingHorizontal: 20,
     borderRadius: 12,
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   sendButtonText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
   },

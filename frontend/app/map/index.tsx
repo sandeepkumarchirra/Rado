@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,15 +9,20 @@ import {
   ActivityIndicator,
   StatusBar,
   Platform,
+  Animated,
+  Dimensions,
 } from 'react-native';
-import Slider from '@react-native-community/slider';
+import Svg, { Circle, Line, Defs, RadialGradient, Stop, Path, G } from 'react-native-svg';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import Slider from '@react-native-community/slider';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 interface User {
   id: string;
@@ -35,14 +40,33 @@ interface UserLocation {
   longitudeDelta: number;
 }
 
-export default function MapScreen() {
+interface UserBlip {
+  id: string;
+  name: string;
+  distance_miles: number;
+  angle: number;
+  radius: number;
+  selected: boolean;
+}
+
+export default function RadarScreen() {
   const router = useRouter();
   const [location, setLocation] = useState<UserLocation | null>(null);
   const [nearbyUsers, setNearbyUsers] = useState<User[]>([]);
+  const [userBlips, setUserBlips] = useState<UserBlip[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserBlip | null>(null);
   const [loading, setLoading] = useState(true);
   const [radius, setRadius] = useState(1.0);
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
+
+  // Animation values
+  const sweepAnimation = useRef(new Animated.Value(0)).current;
+  const pulseAnimation = useRef(new Animated.Value(1)).current;
+
+  // Radar dimensions
+  const radarSize = Math.min(screenWidth - 40, screenHeight * 0.4);
+  const radarCenter = radarSize / 2;
 
   useEffect(() => {
     initializeScreen();

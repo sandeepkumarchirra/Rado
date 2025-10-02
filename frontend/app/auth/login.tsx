@@ -49,7 +49,7 @@ export default function LoginScreen() {
         Alert.alert('Success', 'Login successful!', [
           {
             text: 'OK',
-            onPress: () => router.replace('/map/index'),
+            onPress: () => router.replace('/map'),
           },
         ]);
       } else {

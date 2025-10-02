@@ -301,7 +301,7 @@ export default function RadarScreen() {
   if (!location) {
     return (
       <SafeAreaView style={styles.errorContainer}>
-        <Ionicons name="location-outline" size={48} color="#666" />
+        <Ionicons name="location-outline" size={48} color={Colors.textTertiary} />
         <Text style={styles.errorText}>Location not available</Text>
         <TouchableOpacity style={styles.retryButton} onPress={initializeScreen}>
           <Text style={styles.retryButtonText}>Retry</Text>

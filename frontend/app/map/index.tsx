@@ -312,60 +312,147 @@ export default function RadarScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#1a1a1a" />
+      <StatusBar barStyle="light-content" backgroundColor={Colors.background} />
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Nearby Connect</Text>
+        <Text style={styles.headerTitle}>Radar Discovery</Text>
         <View style={styles.headerButtons}>
           <TouchableOpacity style={styles.headerButton} onPress={goToNotifications}>
-            <Ionicons name="notifications-outline" size={24} color="#fff" />
+            <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={goToPreferences}>
-            <Ionicons name="settings-outline" size={24} color="#fff" />
+            <Ionicons name="settings-outline" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.headerButton} onPress={goToProfile}>
-            <Ionicons name="person-outline" size={24} color="#fff" />
+            <Ionicons name="person-outline" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Map/Location Display */}
-      <View style={styles.mapContainer}>
-        <View style={styles.mapPlaceholder}>
-          <Ionicons name="map" size={64} color="#4a9eff" />
-          <Text style={styles.mapTitle}>Location-Based Discovery</Text>
-          <Text style={styles.mapSubtitle}>
-            {Platform.OS === 'web' 
-              ? 'Interactive Google Maps available on mobile devices'
-              : 'Discovering people within your radius'
-            }
-          </Text>
-          <View style={styles.locationInfo}>
-            <Text style={styles.locationText}>
-              📍 Location: {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-            </Text>
-            <Text style={styles.locationText}>
-              🎯 Search Radius: {radius.toFixed(1)} miles
-            </Text>
-          </View>
+      {/* Radar Display */}
+      <View style={styles.radarContainer}>
+        <View style={[styles.radarView, { width: radarSize, height: radarSize }]}>
+          <Svg width={radarSize} height={radarSize} style={styles.radarSvg}>
+            <Defs>
+              <RadialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
+                <Stop offset="0%" stopColor={Colors.primary} stopOpacity="0.1" />
+                <Stop offset="100%" stopColor={Colors.background} stopOpacity="1" />
+              </RadialGradient>
+            </Defs>
 
-          {/* User Markers Simulation */}
-          <View style={styles.userMarkers}>
-            {nearbyUsers.map((user, index) => (
-              <View 
-                key={user.id} 
+            {/* Background gradient */}
+            <Circle 
+              cx={radarCenter} 
+              cy={radarCenter} 
+              r={radarCenter - 20} 
+              fill="url(#radarGradient)" 
+            />
+
+            {/* Concentric circles */}
+            {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
+              <Circle
+                key={index}
+                cx={radarCenter}
+                cy={radarCenter}
+                r={(radarCenter - 20) * factor}
+                fill="none"
+                stroke={Colors.radarGrid}
+                strokeWidth="1"
+                strokeDasharray="2,2"
+              />
+            ))}
+
+            {/* Cross lines */}
+            <Line
+              x1={20}
+              y1={radarCenter}
+              x2={radarSize - 20}
+              y2={radarCenter}
+              stroke={Colors.radarGrid}
+              strokeWidth="1"
+              strokeDasharray="2,2"
+            />
+            <Line
+              x1={radarCenter}
+              y1={20}
+              x2={radarCenter}
+              y2={radarSize - 20}
+              stroke={Colors.radarGrid}
+              strokeWidth="1"
+              strokeDasharray="2,2"
+            />
+
+            {/* Rotating sweep */}
+            <Animated.G
+              rotation={sweepAnimation}
+              origin={`${radarCenter}, ${radarCenter}`}
+            >
+              <Path
+                d={getSweepPath(0)}
+                stroke={Colors.radarSweep}
+                strokeWidth="3"
+                fill="none"
+              />
+            </Animated.G>
+
+            {/* Center dot */}
+            <Animated.Circle
+              cx={radarCenter}
+              cy={radarCenter}
+              r={4}
+              fill={Colors.primary}
+              scale={pulseAnimation}
+            />
+
+            {/* User blips */}
+            {userBlips.map((blip) => {
+              const angleRad = (blip.angle - 90) * Math.PI / 180;
+              const x = radarCenter + Math.cos(angleRad) * blip.radius;
+              const y = radarCenter + Math.sin(angleRad) * blip.radius;
+
+              return (
+                <G key={blip.id}>
+                  <Circle
+                    cx={x}
+                    cy={y}
+                    r={blip.selected ? 8 : 6}
+                    fill={blip.selected ? Colors.radarSelectedBlip : Colors.radarUserBlip}
+                    stroke={Colors.textPrimary}
+                    strokeWidth={blip.selected ? 2 : 1}
+                    onPress={() => handleUserBlipPress(blip)}
+                  />
+                  {blip.selected && (
+                    <Circle
+                      cx={x}
+                      cy={y}
+                      r={12}
+                      fill="none"
+                      stroke={Colors.radarSelectedBlip}
+                      strokeWidth="2"
+                      strokeDasharray="3,3"
+                    />
+                  )}
+                </G>
+              );
+            })}
+          </Svg>
+
+          {/* Distance labels */}
+          <View style={styles.distanceLabels}>
+            {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
+              <Text
+                key={index}
                 style={[
-                  styles.userMarker,
+                  styles.distanceLabel,
                   {
-                    left: `${20 + (index * 15) % 60}%`,
-                    top: `${30 + (index * 10) % 40}%`,
-                  }
+                    top: radarCenter - ((radarCenter - 20) * factor) - 10,
+                    left: radarCenter + 10,
+                  },
                 ]}
               >
-                <Ionicons name="person" size={16} color="#fff" />
-                <Text style={styles.markerLabel}>{user.name}</Text>
-              </View>
+                {(radius * factor).toFixed(1)}mi
+              </Text>
             ))}
           </View>
         </View>
@@ -379,41 +466,37 @@ export default function RadarScreen() {
           <Ionicons 
             name="refresh" 
             size={20} 
-            color="#fff" 
+            color={Colors.textPrimary} 
           />
         </TouchableOpacity>
       </View>
+
+      {/* Selected User Info */}
+      {selectedUser && (
+        <View style={styles.selectedUserInfo}>
+          <View style={styles.userInfoContent}>
+            <Ionicons name="person" size={20} color={Colors.primary} />
+            <Text style={styles.selectedUserName}>{selectedUser.name}</Text>
+            <Text style={styles.selectedUserDistance}>
+              {selectedUser.distance_miles.toFixed(1)} miles away
+            </Text>
+          </View>
+        </View>
+      )}
 
       {/* Controls */}
       <View style={styles.controls}>
         {/* User Count */}
         <View style={styles.userCount}>
-          <Ionicons name="people" size={20} color="#4a9eff" />
+          <Ionicons name="people" size={20} color={Colors.primary} />
           <Text style={styles.userCountText}>
-            {nearbyUsers.length} user{nearbyUsers.length !== 1 ? 's' : ''} in radius
+            {nearbyUsers.length} user{nearbyUsers.length !== 1 ? 's' : ''} within {radius.toFixed(1)} miles
           </Text>
         </View>
 
-        {/* Users List */}
-        {nearbyUsers.length > 0 && (
-          <View style={styles.usersList}>
-            <Text style={styles.usersListTitle}>Nearby Users:</Text>
-            {nearbyUsers.slice(0, 5).map((user) => (
-              <View key={user.id} style={styles.userItem}>
-                <Ionicons name="person" size={16} color="#4a9eff" />
-                <Text style={styles.userName}>{user.name}</Text>
-                <Text style={styles.userDistance}>{user.distance_miles}mi</Text>
-              </View>
-            ))}
-            {nearbyUsers.length > 5 && (
-              <Text style={styles.moreUsers}>+{nearbyUsers.length - 5} more users</Text>
-            )}
-          </View>
-        )}
-
         {/* Radius Slider */}
         <View style={styles.sliderContainer}>
-          <Text style={styles.sliderLabel}>Search Radius: {radius.toFixed(1)} miles</Text>
+          <Text style={styles.sliderLabel}>Scan Radius: {radius.toFixed(1)} miles</Text>
           <Slider
             style={styles.slider}
             value={radius}
@@ -421,8 +504,8 @@ export default function RadarScreen() {
             minimumValue={0.5}
             maximumValue={5.0}
             step={0.1}
-            minimumTrackTintColor="#4a9eff"
-            maximumTrackTintColor="#333"
+            minimumTrackTintColor={Colors.primary}
+            maximumTrackTintColor={Colors.border}
             thumbStyle={styles.sliderThumb}
           />
         </View>
@@ -431,14 +514,14 @@ export default function RadarScreen() {
         <TouchableOpacity
           style={[
             styles.sendButton,
-            nearbyUsers.length === 0 && styles.sendButtonDisabled,
+            !selectedUser && styles.sendButtonDisabled,
           ]}
           onPress={handleSendMessage}
-          disabled={nearbyUsers.length === 0}
+          disabled={!selectedUser}
         >
-          <Ionicons name="paper-plane" size={20} color="#fff" style={styles.sendIcon} />
+          <Ionicons name="paper-plane" size={20} color={Colors.textPrimary} style={styles.sendIcon} />
           <Text style={styles.sendButtonText}>
-            Send Message
+            {selectedUser ? 'Send Message' : 'Select User to Message'}
           </Text>
         </TouchableOpacity>
       </View>

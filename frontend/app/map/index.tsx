@@ -70,6 +70,8 @@ export default function RadarScreen() {
 
   useEffect(() => {
     initializeScreen();
+    startSweepAnimation();
+    startPulseAnimation();
   }, []);
 
   useEffect(() => {
@@ -78,6 +80,60 @@ export default function RadarScreen() {
       findNearbyUsers();
     }
   }, [location, radius, authToken]);
+
+  useEffect(() => {
+    // Convert nearby users to radar blips
+    const blips = nearbyUsers.map((user, index) => ({
+      id: user.id,
+      name: user.name,
+      distance_miles: user.distance_miles,
+      // Position users based on distance from center
+      angle: (index * 45 + Math.random() * 30) % 360, // Distribute around circle with some randomness
+      radius: (user.distance_miles / radius) * (radarCenter - 40), // Scale to radar size
+      selected: false,
+    }));
+    setUserBlips(blips);
+  }, [nearbyUsers, radius, radarCenter]);
+
+  const startSweepAnimation = () => {
+    const createSweepAnimation = () => {
+      return Animated.timing(sweepAnimation, {
+        toValue: 360,
+        duration: 4000,
+        useNativeDriver: false,
+      });
+    };
+
+    const loopAnimation = () => {
+      sweepAnimation.setValue(0);
+      createSweepAnimation().start(() => loopAnimation());
+    };
+
+    loopAnimation();
+  };
+
+  const startPulseAnimation = () => {
+    const createPulseAnimation = () => {
+      return Animated.sequence([
+        Animated.timing(pulseAnimation, {
+          toValue: 1.2,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+        Animated.timing(pulseAnimation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: false,
+        }),
+      ]);
+    };
+
+    const loopPulse = () => {
+      createPulseAnimation().start(() => loopPulse());
+    };
+
+    loopPulse();
+  };
 
   const initializeScreen = async () => {
     try {

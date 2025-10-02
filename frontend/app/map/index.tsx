@@ -281,11 +281,19 @@ export default function RadarScreen() {
     router.push('/notifications');
   };
 
+  // Calculate sweep path for the radar scanner
+  const getSweepPath = (angle: number) => {
+    const angleRad = (angle - 90) * Math.PI / 180; // Start from top
+    const x = radarCenter + Math.cos(angleRad) * (radarCenter - 20);
+    const y = radarCenter + Math.sin(angleRad) * (radarCenter - 20);
+    return `M ${radarCenter} ${radarCenter} L ${x} ${y}`;
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4a9eff" />
-        <Text style={styles.loadingText}>Getting your location...</Text>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Initializing radar...</Text>
       </SafeAreaView>
     );
   }

@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -97,7 +98,7 @@ export default function NotificationsScreen() {
           {
             id: 'location',
             type: 'nearby',
-            title: 'Location services active',
+            title: 'Radar active',
             message: 'You can now discover people within your selected radius.',
             timestamp: new Date(Date.now() - 60000).toISOString(), // 1 minute ago
             read: true,
@@ -193,7 +194,7 @@ export default function NotificationsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4a9eff" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading notifications...</Text>
       </SafeAreaView>
     );
@@ -204,7 +205,7 @@ export default function NotificationsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
+          <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
         <TouchableOpacity onPress={markAllAsRead}>
@@ -215,7 +216,7 @@ export default function NotificationsScreen() {
       {/* Stats */}
       <View style={styles.stats}>
         <View style={styles.statItem}>
-          <Ionicons name="mail-unread" size={20} color="#4a9eff" />
+          <Ionicons name="mail-unread" size={20} color={Colors.primary} />
           <Text style={styles.statText}>
             {unreadCount} unread
           </Text>
@@ -232,16 +233,16 @@ export default function NotificationsScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#4a9eff"
+            tintColor={Colors.primary}
           />
         }
       >
         {notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Ionicons name="notifications-off" size={48} color="#666" />
+            <Ionicons name="notifications-off" size={48} color={Colors.textTertiary} />
             <Text style={styles.emptyText}>No notifications yet</Text>
             <Text style={styles.emptySubtext}>
-              You'll see notifications about messages and nearby users here
+              You'll see notifications about messages and radar discoveries here
             </Text>
           </View>
         ) : (
@@ -259,7 +260,7 @@ export default function NotificationsScreen() {
                   <Ionicons
                     name={getNotificationIcon(notification) as any}
                     size={24}
-                    color={notification.read ? '#666' : '#4a9eff'}
+                    color={notification.read ? Colors.textTertiary : Colors.primary}
                   />
                 </View>
                 <View style={styles.notificationContent}>
@@ -293,16 +294,16 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 16,
     marginTop: 16,
   },
@@ -312,17 +313,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
   },
   markAllButton: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -332,21 +333,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: Colors.border,
   },
   statItem: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   statText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 14,
     marginLeft: 6,
   },
   clearButton: {
-    color: '#ff4757',
+    color: Colors.error,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -361,13 +362,13 @@ const styles = StyleSheet.create({
     paddingVertical: 80,
   },
   emptyText: {
-    color: '#666',
+    color: Colors.textTertiary,
     fontSize: 18,
     fontWeight: '500',
     marginTop: 16,
   },
   emptySubtext: {
-    color: '#555',
+    color: Colors.textTertiary,
     fontSize: 14,
     textAlign: 'center',
     marginTop: 8,
@@ -379,17 +380,17 @@ const styles = StyleSheet.create({
   notificationItem: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 12,
     padding: 16,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: Colors.border,
     position: 'relative',
   },
   notificationItemUnread: {
-    borderColor: '#4a9eff',
-    backgroundColor: 'rgba(74, 158, 255, 0.05)',
+    borderColor: Colors.primary,
+    backgroundColor: Colors.surfaceElevated,
   },
   notificationIconContainer: {
     marginRight: 12,
@@ -399,30 +400,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   notificationTitle: {
-    color: '#ccc',
+    color: Colors.textSecondary,
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 4,
   },
   notificationTitleUnread: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontWeight: '600',
   },
   notificationMessage: {
-    color: '#aaa',
+    color: Colors.textSecondary,
     fontSize: 14,
     lineHeight: 18,
     marginBottom: 6,
   },
   notificationTime: {
-    color: '#666',
+    color: Colors.textTertiary,
     fontSize: 12,
   },
   unreadDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#4a9eff',
+    backgroundColor: Colors.primary,
     position: 'absolute',
     top: 16,
     right: 16,

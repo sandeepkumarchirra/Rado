@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
+import { Colors } from '../../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 
@@ -146,7 +147,7 @@ export default function SettingsScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#4a9eff" />
+        <ActivityIndicator size="large" color={Colors.primary} />
         <Text style={styles.loadingText}>Loading profile...</Text>
       </SafeAreaView>
     );
@@ -161,12 +162,12 @@ export default function SettingsScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color="#fff" />
+            <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Profile & Settings</Text>
           <TouchableOpacity onPress={updateProfile} disabled={saving}>
             {saving ? (
-              <ActivityIndicator size="small" color="#4a9eff" />
+              <ActivityIndicator size="small" color={Colors.primary} />
             ) : (
               <Text style={styles.saveButton}>Save</Text>
             )}
@@ -183,7 +184,7 @@ export default function SettingsScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter your name"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                 autoCapitalize="words"
@@ -195,7 +196,7 @@ export default function SettingsScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter your email"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
                 keyboardType="email-address"
@@ -208,7 +209,7 @@ export default function SettingsScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Enter your phone number"
-                placeholderTextColor="#666"
+                placeholderTextColor={Colors.textTertiary}
                 value={formData.phone}
                 onChangeText={(text) => setFormData({ ...formData, phone: text })}
                 keyboardType="phone-pad"
@@ -225,10 +226,10 @@ export default function SettingsScreen() {
               onPress={() => router.push('/profile/preferences')}
             >
               <View style={styles.settingContent}>
-                <Ionicons name="heart" size={20} color="#4a9eff" />
+                <Ionicons name="heart" size={20} color={Colors.primary} />
                 <Text style={styles.settingText}>Preferences</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#666" />
+              <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -236,10 +237,10 @@ export default function SettingsScreen() {
               onPress={() => router.push('/notifications')}
             >
               <View style={styles.settingContent}>
-                <Ionicons name="notifications" size={20} color="#4a9eff" />
+                <Ionicons name="notifications" size={20} color={Colors.primary} />
                 <Text style={styles.settingText}>Notifications</Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#666" />
+              <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
             </TouchableOpacity>
           </View>
 
@@ -263,7 +264,7 @@ export default function SettingsScreen() {
           {/* Logout Section */}
           <View style={styles.section}>
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <Ionicons name="log-out" size={20} color="#ff4757" />
+              <Ionicons name="log-out" size={20} color={Colors.error} />
               <Text style={styles.logoutText}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -285,19 +286,19 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
   },
   keyboardView: {
     flex: 1,
   },
   loadingContainer: {
     flex: 1,
-    backgroundColor: '#1a1a1a',
+    backgroundColor: Colors.background,
     alignItems: 'center',
     justifyContent: 'center',
   },
   loadingText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 16,
     marginTop: 16,
   },
@@ -307,17 +308,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: Colors.border,
   },
   headerTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
   },
   saveButton: {
-    color: '#4a9eff',
+    color: Colors.primary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -328,10 +329,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#333',
+    borderBottomColor: Colors.border,
   },
   sectionTitle: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 16,
@@ -341,19 +342,19 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#fff',
+    color: Colors.textPrimary,
     marginBottom: 6,
     fontWeight: '500',
   },
   input: {
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     paddingVertical: 12,
     paddingHorizontal: 12,
     fontSize: 16,
-    color: '#fff',
+    color: Colors.textPrimary,
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: Colors.border,
   },
   settingItem: {
     flexDirection: 'row',
@@ -361,7 +362,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 12,
-    backgroundColor: '#2a2a2a',
+    backgroundColor: Colors.surface,
     borderRadius: 8,
     marginBottom: 8,
   },
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   settingText: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 16,
     marginLeft: 12,
   },
@@ -381,11 +382,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   accountLabel: {
-    color: '#aaa',
+    color: Colors.textSecondary,
     fontSize: 14,
   },
   accountValue: {
-    color: '#fff',
+    color: Colors.textPrimary,
     fontSize: 14,
     fontFamily: 'monospace',
   },
@@ -393,14 +394,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 71, 87, 0.1)',
+    backgroundColor: Colors.surface,
     paddingVertical: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255, 71, 87, 0.3)',
+    borderColor: Colors.error,
   },
   logoutText: {
-    color: '#ff4757',
+    color: Colors.error,
     fontSize: 16,
     fontWeight: '600',
     marginLeft: 8,
@@ -410,12 +411,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   footerText: {
-    color: '#666',
+    color: Colors.textTertiary,
     fontSize: 14,
     fontWeight: '500',
   },
   footerSubtext: {
-    color: '#555',
+    color: Colors.textTertiary,
     fontSize: 12,
     marginTop: 4,
   },

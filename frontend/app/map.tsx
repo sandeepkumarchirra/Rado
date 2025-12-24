@@ -11,6 +11,7 @@ import {
   Platform,
   Animated,
   Dimensions,
+  AccessibilityInfo,
 } from 'react-native';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
@@ -18,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import Slider from '@react-native-community/slider';
-import { Colors } from '../constants/Colors';
+import { Colors, Typography, Accessibility } from '../constants/Colors';
 
 const BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL;
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -59,12 +60,16 @@ export default function RadarScreen() {
   const [authToken, setAuthToken] = useState<string | null>(null);
   const [updating, setUpdating] = useState(false);
 
+  // Animation for radar sweep
+  const sweepAnimation = React.useRef(new Animated.Value(0)).current;
+
   // Radar dimensions
-  const radarSize = Math.min(screenWidth - 40, screenHeight * 0.4);
+  const radarSize = Math.min(screenWidth - 40, screenHeight * 0.45);
   const radarCenter = radarSize / 2;
 
   useEffect(() => {
     initializeScreen();
+    startRadarAnimation();
   }, []);
 
   useEffect(() => {
@@ -75,18 +80,30 @@ export default function RadarScreen() {
   }, [location, radius, authToken]);
 
   useEffect(() => {
-    // Convert nearby users to radar blips
+    // Convert nearby users to radar blips with better positioning
     const blips = nearbyUsers.map((user, index) => ({
       id: user.id,
       name: user.name,
       distance_miles: user.distance_miles,
-      // Position users based on distance from center
-      angle: (index * 45 + Math.random() * 30) % 360, // Distribute around circle with some randomness
-      radius: (user.distance_miles / radius) * (radarCenter - 40), // Scale to radar size
+      // More natural positioning with some randomization
+      angle: (index * 72 + Math.random() * 45) % 360, // Golden angle distribution
+      radius: Math.min((user.distance_miles / radius) * (radarCenter - 60), radarCenter - 60),
       selected: false,
     }));
     setUserBlips(blips);
   }, [nearbyUsers, radius, radarCenter]);
+
+  const startRadarAnimation = () => {
+    const animate = () => {
+      sweepAnimation.setValue(0);
+      Animated.timing(sweepAnimation, {
+        toValue: 1,
+        duration: 3000, // 3 second sweep
+        useNativeDriver: true,
+      }).start(() => animate());
+    };
+    animate();
+  };
 
   const initializeScreen = async () => {
     try {
@@ -197,6 +214,14 @@ export default function RadarScreen() {
     setSelectedUser(blip);
     // Update the blips array to show selection
     setUserBlips(prev => prev.map(b => ({ ...b, selected: b.id === blip.id })));
+    
+    // Provide haptic feedback
+    if (Platform.OS === 'ios') {
+      // Add haptic feedback if available
+    }
+    
+    // Announce selection for screen readers
+    AccessibilityInfo.announceForAccessibility(`Selected user ${blip.name}, ${blip.distance_miles.toFixed(1)} miles away`);
   };
 
   const handleSendMessage = () => {
@@ -220,6 +245,12 @@ export default function RadarScreen() {
     if (location && authToken) {
       findNearbyUsers();
     }
+  };
+
+  const handleSliderChange = (value: number) => {
+    setRadius(value);
+    // Announce radius change for accessibility
+    AccessibilityInfo.announceForAccessibility(`Scan radius set to ${value.toFixed(1)} miles`);
   };
 
   const goToProfile = () => {
@@ -248,12 +279,23 @@ export default function RadarScreen() {
       <SafeAreaView style={styles.errorContainer}>
         <Ionicons name="location-outline" size={48} color={Colors.textTertiary} />
         <Text style={styles.errorText}>Location not available</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={initializeScreen}>
+        <TouchableOpacity 
+          style={styles.retryButton} 
+          onPress={initializeScreen}
+          accessibilityLabel="Retry getting location"
+          accessibilityHint="Attempts to get your current location again"
+        >
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
   }
+
+  // Calculate sweep rotation
+  const sweepRotation = sweepAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -263,53 +305,78 @@ export default function RadarScreen() {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Radar Discovery</Text>
         <View style={styles.headerButtons}>
-          <TouchableOpacity style={styles.headerButton} onPress={goToNotifications}>
+          <TouchableOpacity 
+            style={styles.headerButton} 
+            onPress={goToNotifications}
+            accessibilityLabel="Notifications"
+            accessibilityHint="View your notifications"
+          >
             <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton} onPress={goToPreferences}>
+          <TouchableOpacity 
+            style={styles.headerButton} 
+            onPress={goToPreferences}
+            accessibilityLabel="Settings"
+            accessibilityHint="Open app preferences"
+          >
             <Ionicons name="settings-outline" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.headerButton} onPress={goToProfile}>
+          <TouchableOpacity 
+            style={styles.headerButton} 
+            onPress={goToProfile}
+            accessibilityLabel="Profile"
+            accessibilityHint="View and edit your profile"
+          >
             <Ionicons name="person-outline" size={24} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Simplified Radar Display */}
+      {/* Enhanced Radar Display */}
       <View style={styles.radarContainer}>
         <View style={[styles.radarView, { width: radarSize, height: radarSize }]}>
-          {/* Radar Background */}
-          <View style={styles.radarBackground}>
-            <Ionicons name="radio" size={64} color={Colors.primary} />
-            <Text style={styles.radarTitle}>Radar Active</Text>
-            <Text style={styles.radarSubtitle}>
-              Scanning {radius.toFixed(1)} mile radius
-            </Text>
-          </View>
+          
+          {/* Enhanced Distance Rings */}
+          {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
+            <View
+              key={`ring-${index}`}
+              style={[
+                styles.radarRing,
+                {
+                  width: (radarSize - 80) * factor,
+                  height: (radarSize - 80) * factor,
+                  borderRadius: ((radarSize - 80) * factor) / 2,
+                  left: radarCenter - ((radarSize - 80) * factor) / 2,
+                  top: radarCenter - ((radarSize - 80) * factor) / 2,
+                },
+              ]}
+            />
+          ))}
 
-          {/* Distance Rings Visual */}
-          <View style={styles.radarRings}>
-            {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.radarRing,
-                  {
-                    width: (radarSize - 40) * factor,
-                    height: (radarSize - 40) * factor,
-                    borderRadius: ((radarSize - 40) * factor) / 2,
-                  },
-                ]}
-              />
-            ))}
-          </View>
+          {/* Animated Radar Sweep */}
+          <Animated.View
+            style={[
+              styles.radarSweep,
+              {
+                width: radarSize - 80,
+                height: radarSize - 80,
+                left: 40,
+                top: 40,
+                transform: [{ rotate: sweepRotation }],
+              },
+            ]}
+            pointerEvents="none"
+          />
+
+          {/* Radar Center with pulsing animation */}
+          <View style={[styles.centerDot, { left: radarCenter - 8, top: radarCenter - 8 }]} />
 
           {/* User Blips */}
           <View style={styles.userBlipsContainer}>
-            {userBlips.map((blip, index) => {
+            {userBlips.map((blip) => {
               const angleRad = (blip.angle - 90) * Math.PI / 180;
-              const x = radarCenter + Math.cos(angleRad) * Math.min(blip.radius, radarCenter - 40);
-              const y = radarCenter + Math.sin(angleRad) * Math.min(blip.radius, radarCenter - 40);
+              const x = radarCenter + Math.cos(angleRad) * blip.radius;
+              const y = radarCenter + Math.sin(angleRad) * blip.radius;
 
               return (
                 <TouchableOpacity
@@ -317,25 +384,42 @@ export default function RadarScreen() {
                   style={[
                     styles.userBlip,
                     {
-                      left: x - 15,
-                      top: y - 15,
+                      left: x - 20,
+                      top: y - 20,
                     },
                     blip.selected && styles.userBlipSelected,
                   ]}
                   onPress={() => handleUserBlipPress(blip)}
+                  accessibilityLabel={`User ${blip.name}`}
+                  accessibilityHint={`${blip.distance_miles.toFixed(1)} miles away. Double tap to select for messaging.`}
+                  accessibilityRole="button"
                 >
                   <Ionicons 
                     name="person" 
                     size={blip.selected ? 20 : 16} 
                     color={Colors.textPrimary} 
                   />
+                  {blip.selected && <View style={styles.selectionRing} />}
                 </TouchableOpacity>
               );
             })}
           </View>
 
-          {/* Center Dot */}
-          <View style={[styles.centerDot, { left: radarCenter - 6, top: radarCenter - 6 }]} />
+          {/* Distance Labels */}
+          {[0.25, 0.5, 0.75, 1.0].map((factor, index) => (
+            <Text
+              key={`label-${index}`}
+              style={[
+                styles.distanceLabel,
+                {
+                  top: radarCenter - ((radarSize - 80) * factor) / 2 - 12,
+                  left: radarCenter + 8,
+                },
+              ]}
+            >
+              {(radius * factor).toFixed(1)}mi
+            </Text>
+          ))}
         </View>
 
         {/* Refresh Button */}
@@ -343,6 +427,8 @@ export default function RadarScreen() {
           style={styles.refreshButton}
           onPress={handleRefresh}
           disabled={updating}
+          accessibilityLabel="Refresh nearby users"
+          accessibilityHint="Searches for nearby users again"
         >
           <Ionicons 
             name="refresh" 
@@ -352,8 +438,16 @@ export default function RadarScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Selected User Info */}
-      {selectedUser && (
+      {/* No Users Message or Selected User Info */}
+      {nearbyUsers.length === 0 ? (
+        <View style={styles.noUsersContainer}>
+          <Ionicons name="search-outline" size={32} color={Colors.textSecondary} />
+          <Text style={styles.noUsersTitle}>No users detected</Text>
+          <Text style={styles.noUsersMessage}>
+            Expand your search radius or try again later to find people nearby.
+          </Text>
+        </View>
+      ) : selectedUser ? (
         <View style={styles.selectedUserInfo}>
           <View style={styles.userInfoContent}>
             <Ionicons name="person" size={20} color={Colors.primary} />
@@ -363,11 +457,11 @@ export default function RadarScreen() {
             </Text>
           </View>
         </View>
-      )}
+      ) : null}
 
-      {/* Controls */}
+      {/* Enhanced Controls */}
       <View style={styles.controls}>
-        {/* User Count */}
+        {/* User Count with better styling */}
         <View style={styles.userCount}>
           <Ionicons name="people" size={20} color={Colors.primary} />
           <Text style={styles.userCountText}>
@@ -375,34 +469,58 @@ export default function RadarScreen() {
           </Text>
         </View>
 
-        {/* Radius Slider */}
+        {/* Enhanced Radius Slider with accessibility */}
         <View style={styles.sliderContainer}>
           <Text style={styles.sliderLabel}>Scan Radius: {radius.toFixed(1)} miles</Text>
           <Slider
             style={styles.slider}
             value={radius}
-            onValueChange={setRadius}
+            onValueChange={handleSliderChange}
             minimumValue={0.5}
             maximumValue={5.0}
             step={0.1}
             minimumTrackTintColor={Colors.primary}
-            maximumTrackTintColor={Colors.border}
+            maximumTrackTintColor={Colors.radarGrid}
             thumbStyle={styles.sliderThumb}
+            accessibilityLabel="Scan radius slider"
+            accessibilityHint="Adjust the search radius from 0.5 to 5 miles"
+            accessible={true}
           />
+          <View style={styles.sliderMarkers}>
+            <Text style={styles.sliderMarker}>0.5mi</Text>
+            <Text style={styles.sliderMarker}>5.0mi</Text>
+          </View>
         </View>
 
-        {/* Send Message Button */}
+        {/* Enhanced Send Message Button */}
         <TouchableOpacity
           style={[
             styles.sendButton,
-            !selectedUser && styles.sendButtonDisabled,
+            (!selectedUser || nearbyUsers.length === 0) && styles.sendButtonDisabled,
           ]}
           onPress={handleSendMessage}
-          disabled={!selectedUser}
+          disabled={!selectedUser || nearbyUsers.length === 0}
+          accessibilityLabel={
+            selectedUser 
+              ? `Send message to ${selectedUser.name}` 
+              : nearbyUsers.length === 0 
+                ? "No users available to message"
+                : "Select a user to message"
+          }
+          accessibilityHint={
+            selectedUser 
+              ? "Opens the message composition screen" 
+              : "Button will be enabled when you select a user"
+          }
         >
           <Ionicons name="paper-plane" size={20} color={Colors.textPrimary} style={styles.sendIcon} />
           <Text style={styles.sendButtonText}>
-            {selectedUser ? 'Send Message' : 'Select User to Message'}
+            {selectedUser 
+              ? 'Send Message' 
+              : nearbyUsers.length === 0 
+                ? 'No Users Available'
+                : 'Select User to Message'
+            }
           </Text>
         </TouchableOpacity>
       </View>
